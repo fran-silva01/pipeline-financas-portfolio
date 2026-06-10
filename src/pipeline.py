@@ -35,7 +35,7 @@ def salvar_no_banco(df):
     print( "Conectando ao banco de dados SQLite...")
     # O '..'serve para subir um nível na hierarquia de diretórios, garantindo que o banco de dados seja criado na pasta correta.
     caminho_banco = os.path.join(
-        os.path.dirname(__file__), '..', 'dados', 'financas.db'
+        os.path.dirname(__file__), '..', 'data', 'financas.db'
     )
 
     # Garante que a pasta 'data'existe na raiz do projeto
