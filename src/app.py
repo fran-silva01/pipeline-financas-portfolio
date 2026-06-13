@@ -3,27 +3,40 @@ import sqlite3 # Para interação com o banco de dados SQLite
 import pandas as pd # Para manipulação de dados
 import plotly.express as px # Para visualização de dados
 import streamlit as st # Para criar a interface web
+import urllib.request # Para verificar a existência do arquivo de banco de dados
+import time # Para adicionar um delay na verificação do arquivo, se necessário
 
 # Configuração da página do Streamlit
 st.set_page_config(
     page_title='Dashboard de Cotações Financeiras', page_icon='📈', layout='wide'
 )
 
-# Função para conectar ao banco de dados e carregar os dados
+# Função para conectar ao banco de dados buscando a versão mais recente do GitHub
+@st.cache_data(ttl=3600)
 def carregar_dados():
-    # 1. Pega o caminho absoluto de onde o arquivo app.py está (dentro de src/)
+    # Pega o caminho absoluto de onde o arquivo app.py está (dentro de src/)
     diretorio_script = os.path.dirname(os.path.abspath(__file__))
 
-    # 2. Sobe um nível (sai de src/) e vai direto para data/financas.db
+    # Sobe um nível (sai de src/) e vai direto para data/financas.db
     caminho_banco = os.path.abspath(
         os.path.join(diretorio_script, '..', 'data', 'financas.db')
     )
+    
+    # Garante que a pasta 'data' exista no servidor do Streamlit
+    os.makedirs(os.path.dirname(caminho_banco), exist_ok=True)
 
-    # Imprime no terminal para checarmos se o caminho corrigiu
-    print(f"Buscando banco de dados no caminho correto: {caminho_banco}")
+    # URL do banco de dados atualizado no GitHub Actions (com quebra de cache)
+    url_banco_github = f"https://raw.githubusercontent.com/fran-silva01/pipeline-financas-portfolio/main/data/financas.db?v={int(time.time())}"
+
+    try:
+        # Baixa a versão mais recente do banco que o GitHub Actions gerou
+        urllib.request.urlretrieve(url_banco_github, caminho_banco)
+        print("Banco de dados atualizado com sucesso a partir do GitHub!")
+    except Exception as e:
+        print(f"Erro ao baixar o banco do GitHub: {e}. Usando arquivo local.")
 
     if not os.path.exists(caminho_banco):
-        print('Arquivo NÃO encontrado neste caminho!')
+        print('Arquivo NÃO encontrado!')
         return None
 
     conexao = sqlite3.connect(caminho_banco)
