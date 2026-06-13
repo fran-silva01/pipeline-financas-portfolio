@@ -1,13 +1,26 @@
 import datetime # Para registrar a data e hora de execução do pipeline
 import os # Para manipulação de arquivos e diretórios
-import sqlite3 # Para interação com o banco de dados SQLite
+import sqlite3
+from urllib import response # Para interação com o banco de dados SQLite
 import pandas as pd # Para manipulação de dados
 import requests # Para fazer requisições HTTP
+import time # Para adicionar um delay na verificação do arquivo, se necessário
 
 def extrair_dados():
     print("Iniciando a extração de dados da API...")
     url = 'https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL'
-    response = requests.get(url)
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0'
+    }
+    for tentativa in range(3):
+        response = requests.get(url, timeout=30, headers=headers)
+
+        if response.status_code == 200:
+            break
+
+    print(f"Tentativa {tentativa+1}: Status {response.status_code}")
+    time.sleep(10)
 
     if response.status_code == 200:
         dados = response.json()
