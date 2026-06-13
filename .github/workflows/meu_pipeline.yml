@@ -7,6 +7,9 @@ on:
     - cron: '0 21 * * *'
   workflow_dispatch: # Permite que clique num botão no GitHub para rodar manualmente quando quiser
 
+permissions:
+  contents: write # Permite que o workflow escreva de volta no repositório (para salvar o banco de dados atualizado)
+
 jobs:
   rodar-pipeline:
     runs-on: ubuntu-latest
