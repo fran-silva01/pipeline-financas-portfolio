@@ -20,7 +20,7 @@ def extrair_dados():
                 'moeda_usd': 'USD',
                 'preco_compra_usd': float(dados['rates']['BRL']),
                 'moeda_eur': 'EUR',
-                'preco_compra_eur': float(dados['rates']['EUR']),
+                'preco_compra_eur': float(dados['rates']['BRL']) / float(dados['rates']['EUR']),
             }
 
             return pd.DataFrame([registro])
@@ -42,7 +42,7 @@ def salvar_no_banco(df):
     caminho_banco = os.path.join(
         os.path.dirname(__file__), '..', 'data', 'financas.db'
     )
-
+    
     # Garante que a pasta 'data'existe na raiz do projeto
     os.makedirs(os.path.dirname(caminho_banco), exist_ok=True)
 
