@@ -1,43 +1,35 @@
 import datetime # Para registrar a data e hora de execução do pipeline
 import os # Para manipulação de arquivos e diretórios
-import sqlite3
-from urllib import response # Para interação com o banco de dados SQLite
+import sqlite3 # Para interação com o banco de dados SQLite
 import pandas as pd # Para manipulação de dados
 import requests # Para fazer requisições HTTP
-import time # Para adicionar um delay na verificação do arquivo, se necessário
 
 def extrair_dados():
     print("Iniciando a extração de dados da API...")
-    url = 'https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL'
 
-    headers = {
-        'User-Agent': 'Mozilla/5.0'
-    }
-    for tentativa in range(3):
-        response = requests.get(url, timeout=30, headers=headers)
+    url = "https://api.frankfurter.app/latest?from=USD&to=BRL,EUR"
+
+    try:
+        response = requests.get(url, timeout=30)
 
         if response.status_code == 200:
-            break
+            dados = response.json()
 
-    print(f"Tentativa {tentativa+1}: Status {response.status_code}")
-    time.sleep(10)
+            registro = {
+                'data_coleta': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'moeda_usd': 'USD',
+                'preco_compra_usd': float(dados['rates']['BRL']),
+                'moeda_eur': 'EUR',
+                'preco_compra_eur': float(dados['rates']['EUR']),
+            }
 
-    if response.status_code == 200:
-        dados = response.json()
-        dolar_info = dados['USDBRL']
-        euro_info = dados['EURBRL']
+            return pd.DataFrame([registro])
 
-        registro = {
-            'data_coleta': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'moeda_usd': dolar_info['code'],
-            'preco_compra_usd': float(dolar_info['bid']),
-            'moeda_eur': euro_info['code'],
-            'preco_compra_eur': float(euro_info['bid']),
-        }
-
-        return pd.DataFrame([registro])
-    else:
         print(f"Erro ao acessar a API. Status Code: {response.status_code}")
+        return None
+
+    except Exception as e:
+        print(f"Erro durante a extração: {e}")
         return None
 
 def salvar_no_banco(df):

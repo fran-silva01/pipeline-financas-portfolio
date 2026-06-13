@@ -3,8 +3,8 @@ name: Executar Pipeline de Financas
 # Define quando o pipeline vai rodar
 on:
   schedule:
-    # Roda todos os dias às 21:00 UTC (18:00 no horário de Brasília)
-    - cron: '0 21 * * *'
+    # Roda todos os dias às 17:21 UTC (14:21 no horário de Brasília)
+    - cron: '17 21 * * *' 
   workflow_dispatch: # Permite que clique num botão no GitHub para rodar manualmente quando quiser
 
 permissions:
